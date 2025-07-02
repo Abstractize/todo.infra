@@ -1,0 +1,6 @@
+### dotenv ###
+.env
+
+### Helm ###
+# Chart dependencies
+**/charts/*.tgz

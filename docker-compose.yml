@@ -1,0 +1,34 @@
+x-common-variables: &common-env
+  ASPNETCORE_ENVIRONMENT: Development
+  JWT_ISSUER: ${JWT_ISSUER}
+  JWT_AUDIENCE: ${JWT_AUDIENCE}
+  JWT_KEY: ${JWT_KEY}
+
+services:
+  angular-ui:
+    build:
+      context: ../todo.angular-client/
+      dockerfile: Dockerfile.local
+    depends_on:
+      - gateway
+    volumes:
+      - ../todo.angular-client:/app
+      - /app/node_modules
+
+  gateway:
+    build:
+      context: ../todo.gateway/
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+    environment:
+      <<: *common-env
+
+  auth-service:
+    build:
+      context: ../todo.auth-service/
+      dockerfile: Dockerfile
+    environment:
+      <<: *common-env
