@@ -29,6 +29,10 @@ services:
   auth-service:
     build:
       context: ../todo.auth-service/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
+    volumes:
+      - ../todo.auth-service/src:/app/src
     environment:
       <<: *common-env
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
