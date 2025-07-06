@@ -4,6 +4,10 @@ x-common-variables: &common-env
   JWT_AUDIENCE: ${JWT_AUDIENCE}
   JWT_KEY: ${JWT_KEY}
 
+x-common-args: &common-args
+    GITHUB_USERNAME: ${GITHUB_USERNAME}
+    GITHUB_TOKEN: ${GITHUB_TOKEN}
+
 services:
   angular-ui:
     build:
@@ -18,11 +22,16 @@ services:
   gateway:
     build:
       context: ../todo.gateway/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
+      args:
+        <<: *common-args
     ports:
       - "8080:8080"
+    volumes:
+      - ../todo.gateway/src:/app/src
     depends_on:
       - auth-service
+      - task-service
     environment:
       <<: *common-env
 
@@ -30,9 +39,22 @@ services:
     build:
       context: ../todo.auth-service/
       dockerfile: Dockerfile.local
+      args:
+        <<: *common-args
     volumes:
       - ../todo.auth-service/src:/app/src
     environment:
       <<: *common-env
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+  
+  task-service:
+    build:
+      context: ../todo.task-service/
+      dockerfile: Dockerfile.local
+      args:
+        <<: *common-args
+    volumes:
+      - ../todo.task-service/src:/app/src
+    environment:
+      <<: *common-env
