@@ -32,6 +32,7 @@ services:
     depends_on:
       - auth-service
       - task-service
+      - analytics-service
     environment:
       <<: *common-env
 
@@ -56,5 +57,14 @@ services:
         <<: *common-args
     volumes:
       - ../todo.task-service/src:/app/src
+    environment:
+      <<: *common-env
+
+  analytics-service:
+    build:
+      context: ../todo.analytics/
+      dockerfile: Dockerfile.local
+    depends_on:
+      - task-service
     environment:
       <<: *common-env
