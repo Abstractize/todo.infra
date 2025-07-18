@@ -33,6 +33,7 @@ services:
       - auth-service
       - task-service
       - analytics-service
+      - recommendations-service
     environment:
       <<: *common-env
 
@@ -68,3 +69,10 @@ services:
       - task-service
     environment:
       <<: *common-env
+
+  recommendations-service:
+    build:
+      context: ../todo.recommendations/
+      dockerfile: Dockerfile.local
+    volumes:
+      - ../todo.recommendations/app:/app/app
