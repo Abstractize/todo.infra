@@ -50,6 +50,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
   
   task-service:
+    platform: linux/amd64
     build:
       context: ../todo.task-service/
       dockerfile: Dockerfile.local
