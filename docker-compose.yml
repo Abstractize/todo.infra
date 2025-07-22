@@ -75,5 +75,7 @@ services:
     build:
       context: ../todo.recommendations/
       dockerfile: Dockerfile.local
+    environment:
+      <<: *common-env
     volumes:
       - ../todo.recommendations/app:/app/app
