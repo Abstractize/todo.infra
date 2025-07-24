@@ -45,10 +45,11 @@ services:
         <<: *common-args
     volumes:
       - ../todo.auth-service/src:/app/src
+    depends_on:
+      - db
     environment:
       <<: *common-env
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SQL_CONNECTION_STRING: ${SQL_CONNECTION_STRING_AUTH}
   
   task-service:
     platform: linux/amd64
@@ -59,8 +60,11 @@ services:
         <<: *common-args
     volumes:
       - ../todo.task-service/src:/app/src
+    depends_on:
+      - db
     environment:
       <<: *common-env
+      SQL_CONNECTION_STRING: ${SQL_CONNECTION_STRING_TASK}
 
   analytics-service:
     build:
@@ -68,8 +72,15 @@ services:
       dockerfile: Dockerfile.local
     depends_on:
       - task-service
+      - db
     environment:
       <<: *common-env
+      SQL_URL: ${SQL_CONNECTION_STRING_ANALYTICS}
+      SQL_USERNAME: ${SQL_USERNAME}
+      SQL_PASSWORD: ${SQL_PASSWORD}
+      SQL_DDL_AUTO: update
+      SQL_DRIVER: org.postgresql.Driver
+      SQL_DIALECT: org.hibernate.dialect.PostgreSQLDialect
 
   recommendations-service:
     build:
@@ -77,5 +88,19 @@ services:
       dockerfile: Dockerfile.local
     environment:
       <<: *common-env
+      SQL_CONNECTION_STRING: ${SQL_CONNECTION_STRING_RECOMMENDATIONS}
+    depends_on:
+      - db
     volumes:
-      - ../todo.recommendations/app:/app/app
+      - ../todo.recommendations/src/app:/app/src/app
+
+  db:
+    image: postgres:14.3
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${SQL_USERNAME}
+      POSTGRES_PASSWORD: ${SQL_PASSWORD}
+    volumes:
+      - ../todo.db/data:/var/lib/postgresql/data
+      - ../todo.db/init:/docker-entrypoint-initdb.d/
