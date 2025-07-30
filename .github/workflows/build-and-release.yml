@@ -47,10 +47,10 @@ jobs:
         run: helm lint .helm
 
       - name: Package Helm chart
-        run: helm package .helm --destination .helm/charts
+        run: helm package .helm --destination .cr-release-packages
 
       - name: Show packaged charts
-        run: ls -l .helm/charts
+        run: ls -l .cr-release-packages
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
