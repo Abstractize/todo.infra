@@ -1,0 +1,61 @@
+name: Build and Release Infra Chart
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  CHART_NAME: infra
+  CHART_REPO_OWNER: Abstractize
+  CHART_REPO_NAME: todo.charts
+
+jobs:
+  helm-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up yq
+        uses: mikefarah/yq@v4
+        with:
+          cmd: echo "yq is set up"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Update Chart.yaml version and appVersion
+        run: |
+            VERSION="0.1.${GITHUB_RUN_NUMBER}"
+            yq eval -i ".appVersion = strenv(GITHUB_SHA) | .version = strenv(VERSION)" .helm/Chart.yaml
+        env:
+            GITHUB_SHA: ${{ github.sha }}
+            VERSION: "0.1.${{ github.run_number }}"
+
+      - name: Lint Helm chart
+        run: helm lint .helm
+
+      - name: Package Helm chart
+        run: helm package .helm --destination .helm/charts
+
+      - name: Chart Releaser - Setup
+        uses: helm/chart-releaser-action@v1.3.0
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: v1.5.0
+
+      - name: Chart Releaser - Release
+        uses: helm/chart-releaser-action@v1.3.0
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          charts_dir: .helm/charts

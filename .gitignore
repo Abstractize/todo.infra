@@ -4,3 +4,5 @@
 ### Helm ###
 # Chart dependencies
 **/charts/*.tgz
+
+**/values.secret.yaml
