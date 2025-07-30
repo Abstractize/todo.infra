@@ -1,13 +1,10 @@
 name: Build and Release Infra Chart
 
 on:
-  pull_request:
+  push:
     branches:
       - main
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 env:
   CHART_NAME: infra
