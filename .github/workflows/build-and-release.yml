@@ -7,64 +7,43 @@ on:
   workflow_dispatch:
 
 env:
+  REGISTRY: ghcr.io
+  OCI_REPO: ghcr.io/abstractize
+  PROJECT_NAME: todo
   CHART_NAME: infra
-  CHART_REPO_OWNER: Abstractize
-  CHART_REPO_NAME: todo.infra
 
 jobs:
   helm-release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up yq
-        uses: mikefarah/yq@v4
-        with:
-          cmd: echo "yq is set up"
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
         with:
           version: v3.14.0
 
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Install yq
+        run: sudo apt-get update && sudo apt-get install -y yq
 
       - name: Update Chart.yaml version and appVersion
         run: |
           VERSION="0.1.${GITHUB_RUN_NUMBER}"
-          yq eval -i ".appVersion = strenv(GITHUB_SHA) | .version = strenv(VERSION)" .helm/Chart.yaml
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-          VERSION: "0.1.${{ github.run_number }}"
-
-      - name: Show updated Chart.yaml
-        run: cat .helm/Chart.yaml
+          yq -y -i ".appVersion = \"${GITHUB_SHA}\" | .version = \"$VERSION\"" .helm/Chart.yaml
 
       - name: Lint Helm chart
         run: helm lint .helm
 
       - name: Package Helm chart
-        run: helm package .helm --destination .cr-release-packages
+        run: helm package .helm --destination .helm-dist
 
-      - name: Show packaged charts
-        run: ls -l .cr-release-packages
-
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.7.0
-        continue-on-error: true
-        env:
-          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          charts_dir: .helm/charts
-          skip_packaging: true
-          skip_existing: false
+      - name: Push Helm chart to GHCR (OCI)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username ${{ github.actor }} --password-stdin
+          CHART_FILE=$(ls .helm-dist/*.tgz)
+          helm push $CHART_FILE oci://${{ env.OCI_REPO }}/helm-charts/${{ env.PROJECT_NAME }}
