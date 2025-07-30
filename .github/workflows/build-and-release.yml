@@ -43,9 +43,6 @@ jobs:
       - name: Lint Helm chart
         run: helm lint .helm
 
-      - name: Package Helm chart
-        run: helm package .helm --destination .helm/charts
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         env:
@@ -53,4 +50,3 @@ jobs:
         with:
           charts_dir: .helm/charts
           skip_existing: true
-          skip_packaging: true
