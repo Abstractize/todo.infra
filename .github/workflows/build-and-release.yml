@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   CHART_NAME: infra
   CHART_REPO_OWNER: Abstractize
