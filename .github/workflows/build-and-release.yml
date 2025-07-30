@@ -1,8 +1,7 @@
 name: Build and Release Infra Chart
 
 on:
-  #push
-  pull_request:
+  push:
     branches:
       - main
   workflow_dispatch:
