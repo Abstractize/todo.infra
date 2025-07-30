@@ -4,15 +4,6 @@ env:
   JWT_ISSUER: "todo.auth-service"
   JWT_AUDIENCE: "todo-api"
 
-secrets:
-  SQL_USERNAME: ""
-  SQL_PASSWORD: ""
-  SQL_CONNECTION_STRING_AUTH: ""
-  SQL_CONNECTION_STRING_TASK: ""
-  SQL_CONNECTION_STRING_RECOMMENDATIONS: ""
-  SQL_CONNECTION_STRING_ANALYTICS: ""
-  JWT_KEY: ""
-
 ingress:
   enabled: true
   hostname: todo.abstractize.dev
