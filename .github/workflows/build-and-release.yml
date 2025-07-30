@@ -33,22 +33,6 @@ jobs:
         with:
           version: v3.14.0
 
-      - name: Inject secrets into values.yaml
-        run: |
-          yq eval '.secrets.SQL_USERNAME = strenv(SQL_USERNAME) |
-                   .secrets.SQL_PASSWORD = strenv(SQL_PASSWORD) |
-                   .secrets.SQL_CONNECTION_STRING_AUTH = strenv(SQL_CONNECTION_STRING_AUTH) |
-                   .secrets.SQL_CONNECTION_STRING_TASK = strenv(SQL_CONNECTION_STRING_TASK) |
-                   .secrets.SQL_CONNECTION_STRING_RECOMMENDATIONS = strenv(SQL_CONNECTION_STRING_RECOMMENDATIONS) |
-                   .secrets.JWT_KEY = strenv(JWT_KEY)' .helm/values.yaml > .helm/values.temp.yaml
-        env:
-          SQL_USERNAME: ${{ secrets.SQL_USERNAME }}
-          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_CONNECTION_STRING_AUTH: ${{ secrets.SQL_CONNECTION_STRING_AUTH }}
-          SQL_CONNECTION_STRING_TASK: ${{ secrets.SQL_CONNECTION_STRING_TASK }}
-          SQL_CONNECTION_STRING_RECOMMENDATIONS: ${{ secrets.SQL_CONNECTION_STRING_RECOMMENDATIONS }}
-          JWT_KEY: ${{ secrets.JWT_KEY }}
-
       - name: Update Chart.yaml version and appVersion
         run: |
             VERSION="0.1.${GITHUB_RUN_NUMBER}"
