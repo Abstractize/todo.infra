@@ -9,7 +9,7 @@ on:
 env:
   CHART_NAME: infra
   CHART_REPO_OWNER: Abstractize
-  CHART_REPO_NAME: todo.charts
+  CHART_REPO_NAME: todo.infra
 
 jobs:
   helm-release:
@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up yq
         uses: mikefarah/yq@v4
@@ -31,6 +33,11 @@ jobs:
         uses: azure/setup-helm@v4
         with:
           version: v3.14.0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Update Chart.yaml version and appVersion
         run: |
