@@ -1,7 +1,7 @@
 name: Build and Release Infra Chart
 
 on:
-  push:
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -46,15 +46,8 @@ jobs:
       - name: Package Helm chart
         run: helm package .helm --destination .helm/charts
 
-      - name: Chart Releaser - Setup
-        uses: helm/chart-releaser-action@v1.3.0
-        env:
-          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          version: v1.5.0
-
-      - name: Chart Releaser - Release
-        uses: helm/chart-releaser-action@v1.3.0
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
