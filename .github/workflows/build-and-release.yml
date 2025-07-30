@@ -15,7 +15,7 @@ jobs:
   helm-release:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
