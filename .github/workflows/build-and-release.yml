@@ -25,6 +25,8 @@ jobs:
 
       - name: Set up yq
         uses: mikefarah/yq@v4
+        with:
+          cmd: --version
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -49,8 +51,11 @@ jobs:
 
       - name: Update Chart.yaml version and appVersion
         run: |
-          VERSION="0.1.${GITHUB_RUN_NUMBER}"
-          yq -y -i ".appVersion = \"${GITHUB_SHA}\" | .version = \"$VERSION\"" .helm/Chart.yaml
+            VERSION="0.1.${GITHUB_RUN_NUMBER}"
+            yq eval -i ".appVersion = strenv(GITHUB_SHA) | .version = strenv(VERSION)" .helm/Chart.yaml
+        env:
+            GITHUB_SHA: ${{ github.sha }}
+            VERSION: "0.1.${{ github.run_number }}"
 
       - name: Lint Helm chart
         run: helm lint .helm
