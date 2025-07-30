@@ -34,14 +34,23 @@ jobs:
 
       - name: Update Chart.yaml version and appVersion
         run: |
-            VERSION="0.1.${GITHUB_RUN_NUMBER}"
-            yq eval -i ".appVersion = strenv(GITHUB_SHA) | .version = strenv(VERSION)" .helm/Chart.yaml
+          VERSION="0.1.${GITHUB_RUN_NUMBER}"
+          yq eval -i ".appVersion = strenv(GITHUB_SHA) | .version = strenv(VERSION)" .helm/Chart.yaml
         env:
-            GITHUB_SHA: ${{ github.sha }}
-            VERSION: "0.1.${{ github.run_number }}"
+          GITHUB_SHA: ${{ github.sha }}
+          VERSION: "0.1.${{ github.run_number }}"
+
+      - name: Show updated Chart.yaml
+        run: cat .helm/Chart.yaml
 
       - name: Lint Helm chart
         run: helm lint .helm
+
+      - name: Package Helm chart
+        run: helm package .helm --destination .helm/charts
+
+      - name: Show packaged charts
+        run: ls -l .helm/charts
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
@@ -49,4 +58,5 @@ jobs:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           charts_dir: .helm/charts
+          skip_packaging: true
           skip_existing: false
