@@ -67,3 +67,5 @@ jobs:
           charts_dir: .helm/charts
           skip_packaging: true
           skip_existing: false
+          packages_with_index: true
+          pages_branch: gh-pages
