@@ -6,3 +6,4 @@
 **/charts/*.tgz
 
 **/values.secret.yaml
+**.tgz
