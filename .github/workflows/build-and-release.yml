@@ -53,3 +53,4 @@ jobs:
         with:
           charts_dir: .helm/charts
           skip_existing: true
+          skip_packaging: true
